@@ -11,6 +11,8 @@ public class EnemyMovement : MonoBehaviour
 
     private NavMeshAgent nav;
 
+    private Animation animation;
+
     private Transform[] AllHidingSpots;
 
     private Transform self;
@@ -25,6 +27,7 @@ public class EnemyMovement : MonoBehaviour
     {
         self = GetComponent<Transform>();
         nav = GetComponent <NavMeshAgent> ();
+        animation = GetComponent<Animation>();
         taggable = GetComponent<Taggable>();
         AllHidingSpots = hidingSpots.getHidingSpots;
 
@@ -35,33 +38,41 @@ public class EnemyMovement : MonoBehaviour
 
 
     void Update ()
-    {
-        
-
+    {        
         if (taggable.isIt)
         {
             currentDestination = (player.position);
             nav.SetDestination(player.position);
+            animation.Play("Run");
         }
         else if (taggable.isImmune)
         {
             currentDestination = FindFurthestHidingSpot();
             nav.SetDestination(currentDestination);
             hidingTimer = 0f; // reset hiding timer
+            animation.Play("Run");
         }
         else
         {
-            // Add the time since Update was last called to the timer.
-            hidingTimer += Time.deltaTime;
 
             Vector3 currentXandZ = gameObject.transform.position;
             currentXandZ.y = currentDestination.y;
 
-            if (currentXandZ == currentDestination && hidingTimer > hidingTime)
+            animation.Play("Run");
+
+            // hide if you found your spot
+            if (currentXandZ == currentDestination)
             {
-                currentDestination = ChooseRandomHidingSpot();
-                nav.SetDestination(currentDestination);
-                hidingTimer = 0f; // reset hiding timer
+                hidingTimer += Time.deltaTime;
+                animation.Play("Idle_01");
+
+                // hiding for too long
+                if (hidingTimer > hidingTime)
+                {
+                    currentDestination = ChooseRandomHidingSpot();
+                    nav.SetDestination(currentDestination);
+                    hidingTimer = 0f; // reset hiding timer
+                }
             }
         }
     }
