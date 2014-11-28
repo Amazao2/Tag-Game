@@ -14,29 +14,56 @@ public class EnemyMovement : MonoBehaviour
     private Transform[] AllHidingSpots;
 
     private Transform self;
+    private Taggable taggable;
+
+    private float hidingTime = 5f; // hide in a spot for up to 5 seconds
+    private float hidingTimer;
+
+    private System.Random random = new System.Random();
 
     void Start ()
     {
         self = GetComponent<Transform>();
         nav = GetComponent <NavMeshAgent> ();
+        taggable = GetComponent<Taggable>();
         AllHidingSpots = hidingSpots.getHidingSpots;
 
         // find a hiding spot right away
         currentDestination = FindClosestHidingSpot();
+        nav.SetDestination(currentDestination);
     }
 
 
     void Update ()
     {
-        //if(enemyHealth.currentHealth > 0 && playerHealth.currentHealth > 0)
-        //{
-        nav.SetDestination(currentDestination);
-            //nav.SetDestination (player.position);
-        //}
-        //else
-        //{
-        //    nav.enabled = false;
-        //}
+        
+
+        if (taggable.isIt)
+        {
+            currentDestination = (player.position);
+            nav.SetDestination(player.position);
+        }
+        else if (taggable.isImmune)
+        {
+            currentDestination = FindFurthestHidingSpot();
+            nav.SetDestination(currentDestination);
+            hidingTimer = 0f; // reset hiding timer
+        }
+        else
+        {
+            // Add the time since Update was last called to the timer.
+            hidingTimer += Time.deltaTime;
+
+            Vector3 currentXandZ = gameObject.transform.position;
+            currentXandZ.y = currentDestination.y;
+
+            if (currentXandZ == currentDestination && hidingTimer > hidingTime)
+            {
+                currentDestination = ChooseRandomHidingSpot();
+                nav.SetDestination(currentDestination);
+                hidingTimer = 0f; // reset hiding timer
+            }
+        }
     }
 
     Vector3 FindFurthestHidingSpot()
@@ -79,5 +106,10 @@ public class EnemyMovement : MonoBehaviour
         }
 
         return closest;
+    }
+
+    Vector3 ChooseRandomHidingSpot()
+    {
+        return AllHidingSpots[random.Next(AllHidingSpots.Length)].position;
     }
 }

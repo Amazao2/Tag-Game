@@ -20,7 +20,6 @@ public class Taggable : MonoBehaviour {
         // Add the time since Update was last called to the timer.
         immunityTimer += Time.deltaTime;
 
-        // If the timer exceeds the time between attacks, the player is in range and this enemy is alive...
         if (immunityTimer >= immunityTime && isImmune)
         {
             isImmune = false;
