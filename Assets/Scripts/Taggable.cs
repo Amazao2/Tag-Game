@@ -6,7 +6,7 @@ public class Taggable : MonoBehaviour {
     public bool isIt;
     public bool isImmune;
 
-    private float immunityTime = 2f; // 2 second immunity after tagging
+    private float immunityTime = 10f; // 10 second immunity after tagging
     float immunityTimer;
 
 	// Use this for initialization
@@ -29,11 +29,14 @@ public class Taggable : MonoBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
+        print(other.gameObject.name + " Has collided with " + this.gameObject.name);
         // only do something if you are it
         if (isIt)
         {
             Taggable taggableCol = other.gameObject.GetComponent<Taggable>();
-            bool notSelf = other.gameObject != this.gameObject;
+            bool notSelf = other.gameObject.name != this.gameObject.name;
+
+            
 
             // If the entering collider is Taggable and not yourself and it isn't immune
             if (taggableCol != null && notSelf && !taggableCol.isImmune)
